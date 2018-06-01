@@ -31,16 +31,16 @@ if [[ -z "$PLATFORM_LOG_DIR" ]]; then
 fi
 
 if [[ -z "$EMQ_NAME" ]]; then
-    if [[ ! -z ${CONTAINER_PARENT_FILE} && -f ${CONTAINER_PARENT_FILE} ]]
-    then
-        export EMQ_NAME="$(cat ${CONTAINER_PARENT_FILE} | awk -F\. '{print $1}')"
-    else
-        export EMQ_NAME="$(hostname)"
-    fi
+    export EMQ_NAME="$(hostname)"
 fi
 
 if [[ -z "$EMQ_HOST" ]]; then
-    export EMQ_HOST="$LOCAL_IP"
+    if [[ ! -z ${CONTAINER_PARENT_FILE} && -f ${CONTAINER_PARENT_FILE} ]]
+    then
+        export EMQ_HOST="$(cat ${CONTAINER_PARENT_FILE} | awk -F\. '{print $1}')"
+    else
+        export EMQ_HOST="$LOCAL_IP"
+    fi
 fi
 
 if [[ -z "$EMQ_WAIT_TIME" ]]; then
