@@ -31,7 +31,7 @@ if [[ -z "$PLATFORM_LOG_DIR" ]]; then
 fi
 
 if [[ -z "$EMQ_NAME" ]]; then
-    if [[ !-z ${CONTAINER_PARENT_FILE} && -f ${CONTAINER_PARENT_FILE} ]]
+    if [[ ! -z ${CONTAINER_PARENT_FILE} && -f ${CONTAINER_PARENT_FILE} ]]
     then
         export EMQ_NAME="$(cat ${CONTAINER_PARENT_FILE} | awk -F\. '{print $1}')"
     else
@@ -123,7 +123,7 @@ do
         # Config in plugins/*
         if [[ ! -z "$(cat $CONFIG_PLUGINS/* |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $(ls $CONFIG_PLUGINS/*)
+            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $(ls $CONFIG_PLUGINS/* | grep -v emq_auth_username)
         fi        
     fi
     # Config template such like {{ platform_etc_dir }}
