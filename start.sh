@@ -34,6 +34,10 @@ if [[ -z "$EMQ_NAME" ]]; then
     export EMQ_NAME="$(hostname)"
 fi
 
+if [[ ! -z ${CONTAINER_PARENT_FILE} && -f ${CONTAINER_PARENT_FILE} ]]
+then
+    EMQ_CONTAINER_NAME="$(cat ${CONTAINER_PARENT_FILE} | awk -F\. '{print $1}')"
+fi
 #if [[ -z "$EMQ_HOST" ]]; then
 #    if [[ ! -z ${CONTAINER_PARENT_FILE} && -f ${CONTAINER_PARENT_FILE} ]]
 #    then
@@ -147,6 +151,26 @@ if [[ ! -z "$EMQ_LOADED_PLUGINS" ]]; then
     # Next, replace special char to ".\n" to fit emq loaded_plugins format
     echo $(echo "$EMQ_LOADED_PLUGINS."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/[^A-Za-z0-9_]\{1,\}/\. /g")|tr ' ' '\n' > /opt/emqttd/data/loaded_plugins
 fi
+
+# CUSTOM CHRIS STUFF
+
+if [[ -z ${DEBUG} ]]
+then
+    sed -i "s/log.console.level = error/log.console.level = debug/g" ${CONFIG}
+    sed -i "s/log.syslog.level = error/log.syslog.level = debug/g" ${CONFIG}
+fi
+
+if [[ -z ${EMQ_CONTAINER_NAME} ]]
+then
+    sed -i "s*## log.info.file = log/info.log*log.info.file = log/info-${EMQ_CONTAINER_NAME}.log*g" ${CONFIG}
+    sed -i "s*log.error.file = log/error.log*log.error.file = log/error-${EMQ_CONTAINER_NAME}.log*g" ${CONFIG}
+    sed -i "s*log.crash.file = log/crash.log*log.crash.file = log/crash-${EMQ_CONTAINER_NAME}.log*g" ${CONFIG}
+else
+    sed -i "s*## log.info.file = log/info.log*log.info.file = log/info-${EMQ_HOST}.log*g" ${CONFIG}
+    sed -i "s*log.error.file = log/error.log*log.error.file = log/error-${EMQ_HOST}.log*g" ${CONFIG}
+    sed -i "s*log.crash.file = log/crash.log*log.crash.file = log/crash-${EMQ_HOST}.log*g" ${CONFIG}
+fi
+
 
 ## EMQ Main script
 
