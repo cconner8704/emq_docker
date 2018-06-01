@@ -9,7 +9,12 @@ fi
 
 ## Local IP address setting
 
-LOCAL_IP=$(hostname -i |grep -E -oh '((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])'|head -n 1)
+if [[ ! -z "${SUBNET}" ]]
+then
+  LOCAL_IP=$(/sbin/ip addr | grep ${SUBNET}\.[0-9].*/24 | awk '{print $2}' | awk -F\/ '{print $1}')
+else
+  LOCAL_IP=$(hostname -i |grep -E -oh '((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])'|head -n 1)
+fi
 
 ## EMQ Base settings and plugins setting
 # Base settings in /opt/emqttd/etc/emq.conf
@@ -26,7 +31,12 @@ if [[ -z "$PLATFORM_LOG_DIR" ]]; then
 fi
 
 if [[ -z "$EMQ_NAME" ]]; then
-    export EMQ_NAME="$(hostname)"
+    if [[ !-z ${CONTAINER_PARENT_FILE} && -f ${CONTAINER_PARENT_FILE} ]]
+    then
+        export EMQ_NAME="$(cat ${CONTAINER_PARENT_FILE} | awk -F\. '{print $1}')"
+    else
+        export EMQ_NAME="$(hostname)"
+    fi
 fi
 
 if [[ -z "$EMQ_HOST" ]]; then
@@ -43,9 +53,9 @@ fi
 
 # Set hosts to prevent cluster mode failed
 
-# if [[ ! -z "$LOCAL_IP" && ! -z "$EMQ_HOST" ]]; then
-#     echo "$LOCAL_IP        $EMQ_HOST" >> /etc/hosts
-# fi
+ if [[ ! -z "$LOCAL_IP" && ! -z "$EMQ_HOST" ]]; then
+     echo "$LOCAL_IP        $EMQ_HOST" >> /etc/hosts
+ fi
 
 # unset EMQ_NAME
 # unset EMQ_HOST

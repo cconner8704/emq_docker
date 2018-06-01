@@ -199,3 +199,4 @@ docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 \
 ### Thanks
 
 @je-al https://github.com/emqtt/emq-docker/issues/2 The idea of variable names get mapped, dots get replaced by __.
+# emq_docker
